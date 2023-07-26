@@ -11,9 +11,17 @@ var app = {
 
   addListenerToActions() {
     // on récupère le bouton d'ouverture de la modale
-    const modalButton = document.getElementById('addListButton');
+    const modalListButton = document.getElementById('addListButton');
     // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance app.showAddListModal
-    modalButton.addEventListener('click', app.showAddListModal);
+    modalListButton.addEventListener('click', app.showAddListModal);
+
+    // on récupère le bouton d'ouverture de la modale
+    const modalCardButton = document.querySelectorAll('.is-pulled-right');
+    // on parcourt les boutons d'ouverture
+    modalCardButton.forEach( function(element) {
+      // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance app.showAddCardModal
+      element.addEventListener('click', app.showAddCardModal);
+    });
 
     // on récupère les boutons de fermeture de la modale
     const modalCloseButtons = document.querySelectorAll('.close');
@@ -32,6 +40,11 @@ var app = {
 
   showAddListModal() {
     const modal = document.getElementById('addListModal');
+    modal.classList.add('is-active');
+  },
+
+  showAddCardModal() {
+    const modal = document.getElementById('addCardModal');
     modal.classList.add('is-active');
   },
 
