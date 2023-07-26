@@ -22,6 +22,12 @@ var app = {
       // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance app.hideModals
       element.addEventListener('click', app.hideModals);
     });
+
+    // on récupère le bouton de validation du formulaire d'ajout de liste
+    const addListModal = document.getElementById('addListModal');
+    const addListFormButton = addListModal.querySelector('.button, .is-success');
+    // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance app.handleAddListForm
+    addListFormButton.addEventListener('click', app.handleAddListForm);
   },
 
   showAddListModal() {
@@ -34,6 +40,22 @@ var app = {
     modals.forEach( function(element) {
       element.classList.remove('is-active');
     });
+  },
+
+  handleAddListForm(event) {
+    // on empêche le comportement par défaut du formulaire
+    event.preventDefault();
+    // on récupère le formulaire
+    const addListModal = document.getElementById('addListModal');
+    const form = addListModal.querySelector('form');
+    // on récupère les données du formulaire
+    const formData = new FormData(form);
+    const data = {
+      name: formData.get('name'),
+    };
+    // on envoie les données du formulaire
+    app.makeListInDOM(data);
+    console.log(data);
   },
 
 };
