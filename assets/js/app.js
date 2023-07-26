@@ -55,7 +55,21 @@ var app = {
     };
     // on envoie les données du formulaire
     app.makeListInDOM(data);
-    console.log(data);
+  },
+
+  makeListInDOM(data) {
+    // on récupère le template de liste
+    const template = document.getElementById('list-template');
+    // on clone le template
+    const clone = document.importNode(template.content, true);
+    // on remplit le clone
+    clone.querySelector('.list-name').textContent = data.name;
+    // on ajoute le clone au DOM
+    const listContainer = document.querySelector('.card-lists');
+    console.log(listContainer);
+    listContainer.appendChild(clone);
+    // on cache la modale
+    app.hideModals();
   },
 
 };
