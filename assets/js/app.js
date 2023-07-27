@@ -1,12 +1,14 @@
 
 // on objet qui contient des fonctions
 var app = {
+  base_url: 'http://localhost:3000',
 
   // fonction d'initialisation, lancée au chargement de la page
   init() {
     console.log('app.init !');
     // on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance app.init
     app.addListenerToActions();
+    app.getListsFromAPI();
   },
 
   addListenerToActions() {
@@ -103,6 +105,7 @@ var app = {
     const clone = document.importNode(template.content, true);
     // on remplit le clone
     clone.querySelector('.list-name').textContent = data.name;
+    clone.querySelector('.panel').dataset.listId = data.id;
 
     // on récupère le bouton d'ouverture de la modale
     const modalCardButton = clone.querySelector('.is-pulled-right');
@@ -118,18 +121,33 @@ var app = {
   },
 
   makeCardInDOM(data) {
-    console.log(data);
     // on récupère le template de carte
     const template = document.getElementById('card-template');
     // on clone le template
     const clone = document.importNode(template.content, true);
     // on remplit le clone
     clone.querySelector('.card-name').textContent = data.name;
+    clone.querySelector('.box').dataset.cardId = data.id;
     // on ajoute le clone au DOM
     const listContainer = document.querySelector(`.panel[data-list-id="${data.list_id}"] .panel-block`);
     listContainer.appendChild(clone);
     // on cache la modale
     app.hideModals();
+  },
+
+  /* 
+    API CALLS
+  */
+
+  async getListsFromAPI() {
+    const response = await fetch(`${app.base_url}/lists`);
+    const lists = await response.json();
+    lists.forEach( (list) => {
+      app.makeListInDOM(list);
+      list.cards.forEach( (card) => {
+        app.makeCardInDOM(card);
+      });
+    });
   },
 
 };
