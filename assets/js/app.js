@@ -66,7 +66,7 @@ var app = {
     });
   },
 
-  handleAddListForm(event) {
+  async handleAddListForm(event) {
     // on empêche le comportement par défaut du formulaire
     event.preventDefault();
     // on récupère le formulaire
@@ -76,12 +76,29 @@ var app = {
     const formData = new FormData(form);
     const data = {
       name: formData.get('name'),
+      // A CHANGER
+      position: 20,
     };
+
     // on envoie les données du formulaire
-    app.makeListInDOM(data);
+    try {
+      const result = await fetch(`${app.base_url}/lists`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const resultJson = await result.json();
+      data.id = resultJson.id;
+      app.makeListInDOM(data);
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
-  handleAddCardForm(event) {
+  async handleAddCardForm(event) {
     // on empêche le comportement par défaut du formulaire
     event.preventDefault();
     // on récupère le formulaire
@@ -94,8 +111,22 @@ var app = {
       position: formData.get('position'),
       list_id: formData.get('list-id')
     };
+
     // on envoie les données du formulaire
-    app.makeCardInDOM(data);
+    try {
+      const result = await fetch(`${app.base_url}/cards`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const resultJson = await result.json();
+      data.id = resultJson.id;
+      app.makeCardInDOM(data);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
   makeListInDOM(data) {
@@ -142,9 +173,9 @@ var app = {
   async getListsFromAPI() {
     const response = await fetch(`${app.base_url}/lists`);
     const lists = await response.json();
-    lists.forEach( (list) => {
+    lists.forEach((list) => {
       app.makeListInDOM(list);
-      list.cards.forEach( (card) => {
+      list.cards.forEach((card) => {
         app.makeCardInDOM(card);
       });
     });
