@@ -91,6 +91,26 @@ const cardModule = {
     }
   },
 
+  /* Supprimer une carte */
+
+  async deleteCard(event) {
+    event.preventDefault();
+    // on récupère la carte
+    const cardElement = event.target.closest('.box');
+    const cardId = cardElement.getAttribute('data-card-id');
+    try {
+      // on envoie les données du formulaire
+      const result = await fetch(`${app.base_url}/cards/${cardId}`, {
+        method: 'DELETE',
+      });
+      const resultJson = await result.json();
+      // on supprime la carte du DOM
+      cardElement.remove();
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
   makeCardInDOM(data) {
     // on récupère le template de carte
     const template = document.getElementById('card-template');
@@ -105,6 +125,11 @@ const cardModule = {
     const editButton = clone.getElementById('card-edit-button');
     // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance cardModule.showEditCardInput
     editButton.addEventListener('click', cardModule.showEditCardInput);
+
+    // on récupère le bouton de suppression de la carte
+    const deleteButton = clone.getElementById('card-delete-button');
+    // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance cardModule.deleteCard
+    deleteButton.addEventListener('click', cardModule.deleteCard);
 
     // on ajoute le clone au DOM
     const listContainer = document.querySelector(`.panel[data-list-id="${data.list_id}"] .panel-block`);
