@@ -85,7 +85,7 @@ const listModule = {
       });
       const resultJson = await result.json();
       const listTitle = form.parentNode.querySelector('.list-name');
-      listTitle.textContent = data.name;
+      listTitle.textContent = resultJson[1][0].name;
       form.classList.add('is-hidden');
       listTitle.classList.remove('is-hidden');
     } catch (error) {

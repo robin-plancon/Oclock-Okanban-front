@@ -82,10 +82,10 @@ const cardModule = {
       const resultJson = await result.json();
       // on met à jour le nom de la carte dans le DOM
       const cardName = form.closest('.box').querySelector('.card-name');
-      cardName.textContent = data.name;
+      cardName.textContent = resultJson[1][0].name;
       // on cache le formulaire et on affiche le nom de la carte
       cardName.classList.remove('is-hidden');
-      form.classList.add('is-hidden');
+      form.parentNode.classList.add('is-hidden');
     } catch (error) {
       console.error(error);
     }
