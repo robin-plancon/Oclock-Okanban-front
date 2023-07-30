@@ -1,4 +1,7 @@
 const cardModule = {
+
+ /* Ajouter une nouvelle carte */
+
 	showAddCardModal(event) {
     event.preventDefault();
     const modal = document.getElementById('addCardModal');
@@ -38,6 +41,56 @@ const cardModule = {
     }
   },
 
+  /* Editer une carte */
+
+  showEditCardInput(event) {
+    event.preventDefault();
+    // on récupère la carte
+    const cardElement = event.target.closest('.box');
+    const form = cardElement.querySelector('#card-form');
+    // on affiche le formulaire
+    form.classList.remove('is-hidden');
+    const cardName = cardElement.querySelector('.card-name');
+    // on cache le nom de la carte
+    cardName.classList.add('is-hidden');
+
+    // on remplit le formulaire avec le nom de la carte actuel
+    form.querySelector('input[name="card-name"]').value = cardName.textContent;
+    form.querySelector('input[name="card-name"]').focus();
+    // on ajoute un écouteur d'évènement sur le formulaire : quand on soumet le formulaire, on lance cardModule.handleEditCardForm
+    form.addEventListener('submit', cardModule.handleEditCardForm);
+  },
+
+  async handleEditCardForm(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    // on récupère les données du formulaire
+    const data = {
+      name: formData.get('card-name'),
+    };
+    const cardId = form.closest('.box').getAttribute('data-card-id');
+    try {
+      // on envoie les données du formulaire
+      const result = await fetch(`${app.base_url}/cards/${cardId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const resultJson = await result.json();
+      // on met à jour le nom de la carte dans le DOM
+      const cardName = form.closest('.box').querySelector('.card-name');
+      cardName.textContent = data.name;
+      // on cache le formulaire et on affiche le nom de la carte
+      cardName.classList.remove('is-hidden');
+      form.classList.add('is-hidden');
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
   makeCardInDOM(data) {
     // on récupère le template de carte
     const template = document.getElementById('card-template');
@@ -46,6 +99,13 @@ const cardModule = {
     // on remplit le clone
     clone.querySelector('.card-name').textContent = data.name;
     clone.querySelector('.box').dataset.cardId = data.id;
+
+    // on ajoute les écouteurs d'évènements
+    // on récupère le bouton d'edition de la carte
+    const editButton = clone.getElementById('card-edit-button');
+    // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance cardModule.showEditCardInput
+    editButton.addEventListener('click', cardModule.showEditCardInput);
+
     // on ajoute le clone au DOM
     const listContainer = document.querySelector(`.panel[data-list-id="${data.list_id}"] .panel-block`);
     listContainer.prepend(clone);
