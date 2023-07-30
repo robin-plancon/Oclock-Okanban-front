@@ -42,6 +42,7 @@ const app = {
     const addCardFormButton = addCardModal.querySelector('.button, .is-success');
     // on accroche un écouteur d'évènement sur le bouton : quand on clique, on lance app.handleAddCardForm
     addCardFormButton.addEventListener('click', cardModule.handleAddCardForm);
+
   },
 
   hideModals() {

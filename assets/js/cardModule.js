@@ -4,7 +4,7 @@ const cardModule = {
     const modal = document.getElementById('addCardModal');
     modal.classList.add('is-active');
     // on définit l'id de la liste dans le formulaire
-    modal.querySelector('input[name="list-id"]').value = event.target.closest('.panel').dataset.listId;
+    modal.querySelector('input[name="list-id"]').value = event.target.closest('.panel').getAttribute('data-list-id');
   },
 
   async handleAddCardForm(event) {
@@ -17,7 +17,7 @@ const cardModule = {
     const formData = new FormData(form);
     const data = {
       name: formData.get('name'),
-      position: formData.get('position'),
+      position: 1,
       list_id: formData.get('list-id')
     };
 
@@ -48,7 +48,7 @@ const cardModule = {
     clone.querySelector('.box').dataset.cardId = data.id;
     // on ajoute le clone au DOM
     const listContainer = document.querySelector(`.panel[data-list-id="${data.list_id}"] .panel-block`);
-    listContainer.appendChild(clone);
+    listContainer.prepend(clone);
     // on cache la modale
     app.hideModals();
   },
