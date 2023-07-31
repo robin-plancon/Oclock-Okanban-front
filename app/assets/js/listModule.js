@@ -60,6 +60,27 @@ const listModule = {
         // Je modifie le titre de ma nouvelle liste pour qu'il corresponde à ce que j'aurais écrit dans le formulaire.
         const newListTitle = newList.getElementById("title");
         newListTitle.textContent = name;
+        newListTitle.addEventListener("dblclick", () => listModule.toggleModifyForm(id));
+
+        // Je rajoute la logique pour le formulaire de modification du titre de la liste.
+        const newListForm = newList.querySelector("form");
+        newListForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            // Je fais une requête sur la route PATH /lists/:id, pour mettre à jour le nom de la liste sur notre BDD.
+            const response = await fetch(`${app.base_url}/lists/${id}`, {
+                method: "PATCH",
+                body: formData
+            });
+
+            // Si la BDD a correctement modifié le nom, alors je le change aussi du côté du front (sur le DOM).
+            if (response.status == 200) {
+                newListTitle.textContent = formData.get('name');
+            };
+
+            // Dans tous les cas (réussite/échec), je cache le formulaire et je réaffiche le titre.
+            listModule.toggleModifyForm(id);
+        });
 
         // Tout d'abord, je sélectionne la div dans newList qui porte l'attribue data-list-id.
         // Puis je donne une valeur à l'attribue data-list-id avec l'id de la liste (qui a été récupéré depuis l'API).
@@ -89,4 +110,14 @@ const listModule = {
         // classList est une méthode qui nous permet de manipuler les classes de l'élément.
         addListModal.classList.add("is-active");
     },
+    toggleModifyForm: id => {
+        const list = document.querySelector(`[data-list-id="${id}"]`);
+        const title = list.querySelector("#title");
+        const form = list.querySelector("form");
+
+        // Si la classe est présente, je la retire.
+        title.classList.toggle("is-hidden");
+        // Si la classe n'est pas présente, je l'ajoute.
+        form.classList.toggle("is-hidden");
+    }
 }
