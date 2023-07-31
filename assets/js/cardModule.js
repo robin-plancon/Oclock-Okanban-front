@@ -26,10 +26,19 @@ const cardModule = {
 
     // on récupère l'ensemble des cartes de la liste
     const cards = document.querySelectorAll(`.panel[data-list-id="${data.list_id}"] .box`);
-    console.log(cards);
 
     // on envoie les données du formulaire
     try {
+      cards.forEach((card, index) => {
+        const cardId = card.getAttribute('data-card-id');
+        const result = fetch(`${app.base_url}/cards/${cardId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ position: (index + 2) }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      });
       const result = await fetch(`${app.base_url}/cards`, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -39,7 +48,7 @@ const cardModule = {
       });
       const resultJson = await result.json();
       data.id = resultJson.id;
-      cardModule.makeCardInDOM(data);
+      cardModule.makeCardInDOM(data, 'prepend');
       addCardModal.querySelector('input[name="name"]').value = '';
     } catch (error) {
       console.error(error);
@@ -104,7 +113,22 @@ const cardModule = {
     // on récupère la carte
     const cardElement = event.target.closest('.box');
     const cardId = cardElement.getAttribute('data-card-id');
+
+    // on récupère les cartes de la liste se trouvant après la carte à supprimer
+    const cards = cardElement.parentNode.querySelectorAll(`.box[data-card-id="${cardId}"] ~ .box`);
+
     try {
+      // on met à jour la position des cartes
+      cards.forEach((card, index) => {
+        const cardId = card.getAttribute('data-card-id');
+        const result = fetch(`${app.base_url}/cards/${cardId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ position: (index + 1) }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      });
       // on envoie les données du formulaire
       const result = await fetch(`${app.base_url}/cards/${cardId}`, {
         method: 'DELETE',
