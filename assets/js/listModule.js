@@ -36,8 +36,22 @@ const listModule = {
       position: 1,
     };
 
+    // on récupère l'ensemble des listes
+    const lists = document.querySelectorAll('.panel');
+
     // on envoie les données du formulaire
     try {
+      lists.forEach((list, index) => {
+        const listId = list.getAttribute('data-list-id');
+        const result = fetch(`${app.base_url}/lists/${listId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ position: (index + 2) }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      });
+
       const result = await fetch(`${app.base_url}/lists`, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -47,7 +61,7 @@ const listModule = {
       });
       const resultJson = await result.json();
       data.id = resultJson.id;
-      listModule.makeListInDOM(data);
+      listModule.makeListInDOM(data, 'prepend');
       addListModal.querySelector('input[name="name"]').value = '';
     } catch (error) {
       console.error(error);
@@ -76,6 +90,7 @@ const listModule = {
       name: formData.get('list-name'),
     };
     const listId = formData.get('list-id');
+
     try {
       const result = await fetch(`${app.base_url}/lists/${listId}`, {
         method: 'PATCH',
@@ -100,7 +115,22 @@ const listModule = {
     event.preventDefault();
     const listElement = event.target.closest('.panel');
     const listId = listElement.getAttribute('data-list-id');
+
+    // on récupère l'ensemble des listes se trouvant après la liste supprimée
+    const lists = document.querySelectorAll(`.panel[data-list-id="${listId}"] ~ .panel`);
+
     try {
+      lists.forEach((list, index) => {
+        const listId = list.getAttribute('data-list-id');
+        const result = fetch(`${app.base_url}/lists/${listId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ position: (index + 1) }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      });
+
       const result = await fetch(`${app.base_url}/lists/${listId}`, {
         method: 'DELETE',
       });
@@ -111,7 +141,7 @@ const listModule = {
     }
   },
 
-	makeListInDOM(data) {
+	makeListInDOM(data, position = 'append') {
     // on récupère le template de liste
     const template = document.getElementById('list-template');
     // on clone le template
@@ -141,7 +171,8 @@ const listModule = {
 
     // on ajoute le clone au DOM
     const listContainer = document.querySelector('.card-lists');
-    listContainer.prepend(clone);
+    if (position === 'append') listContainer.appendChild(clone);
+    else if (position === 'prepend') listContainer.prepend(clone);
 
     if (data.cards) {
       data.cards.forEach((card) => {

@@ -24,6 +24,10 @@ const cardModule = {
       list_id: formData.get('list-id')
     };
 
+    // on récupère l'ensemble des cartes de la liste
+    const cards = document.querySelectorAll(`.panel[data-list-id="${data.list_id}"] .box`);
+    console.log(cards);
+
     // on envoie les données du formulaire
     try {
       const result = await fetch(`${app.base_url}/cards`, {
@@ -113,7 +117,7 @@ const cardModule = {
     }
   },
 
-  makeCardInDOM(data) {
+  makeCardInDOM(data, position = 'append') {
     // on récupère le template de carte
     const template = document.getElementById('card-template');
     // on clone le template
@@ -135,7 +139,8 @@ const cardModule = {
 
     // on ajoute le clone au DOM
     const listContainer = document.querySelector(`.panel[data-list-id="${data.list_id}"] .panel-block`);
-    listContainer.prepend(clone);
+    if (position === 'append') listContainer.appendChild(clone);
+    else if (position === 'prepend') listContainer.prepend(clone);
     // on cache la modale
     app.hideModals();
   },
