@@ -36,8 +36,10 @@ const cardModule = {
       const resultJson = await result.json();
       data.id = resultJson.id;
       cardModule.makeCardInDOM(data);
+      addCardModal.querySelector('input[name="name"]').value = '';
     } catch (error) {
       console.error(error);
+      addCardModal.querySelector('input[name="name"]').value = '';
     }
   },
 

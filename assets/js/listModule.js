@@ -15,7 +15,7 @@ const listModule = {
 		DOM MANIPULATION
 	*/
 
-  /* Add new list */
+  /* Ajout d'une liste */
 
 	showAddListModal(event) {
 		event.preventDefault();
@@ -33,7 +33,6 @@ const listModule = {
     const formData = new FormData(form);
     const data = {
       name: formData.get('name'),
-      // A CHANGER
       position: 1,
     };
 
@@ -49,12 +48,14 @@ const listModule = {
       const resultJson = await result.json();
       data.id = resultJson.id;
       listModule.makeListInDOM(data);
+      addListModal.querySelector('input[name="name"]').value = '';
     } catch (error) {
       console.error(error);
+      addListModal.querySelector('input[name="name"]').value = '';
     }
   },
 
-  /* Edit a list */
+  /* Modification d'une liste */
 
   showEditListInput(event) {
     event.preventDefault();
@@ -93,6 +94,23 @@ const listModule = {
     }
   },
 
+  /* Suppression d'une liste */
+
+  async handleDeleteList(event) {
+    event.preventDefault();
+    const listElement = event.target.closest('.panel');
+    const listId = listElement.getAttribute('data-list-id');
+    try {
+      const result = await fetch(`${app.base_url}/lists/${listId}`, {
+        method: 'DELETE',
+      });
+      const resultJson = await result.json();
+      listElement.remove();
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
 	makeListInDOM(data) {
     // on récupère le template de liste
     const template = document.getElementById('list-template');
@@ -110,6 +128,11 @@ const listModule = {
     // on modifie la valeur de l'input caché contenant l'id de la liste
     const listIdInput = clone.querySelector('input[name="list-id"]');
     listIdInput.value = data.id;
+
+    // on récupère le buton de suppression de la liste
+    const deleteListButton = clone.getElementById('list-delete-button');
+    // on ajoute un écouteur d'évènement sur le bouton de suppression de la liste
+    deleteListButton.addEventListener('click', listModule.handleDeleteList);
 
     // on récupère le bouton d'ouverture de la modale d'ajout de carte
     const modalCardButton = clone.querySelector('.is-pulled-right');
