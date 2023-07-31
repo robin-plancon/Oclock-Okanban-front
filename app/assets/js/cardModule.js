@@ -66,6 +66,27 @@ const cardModule = {
         cardBox.setAttribute("data-card-id", id);
         cardBox.style.backgroundColor = color;
 
+        // La partie pour connecter le color picker.
+        newCard.querySelector('[data-coloris]').addEventListener('click', () => {
+            // Coloris m'est donné directement par le module que j'ai importé pour le color picker.
+            Coloris({
+                // la méthode onChange sera appelé à chaque fois que je cliquerais sur une couleur.
+                onChange: async color => {
+                    const formData = new FormData();
+                    formData.set("color", color);
+
+                    const response = await fetch(`${app.base_url}/cards/${id}`, {
+                        method: "PATCH",
+                        body: formData
+                    })
+
+                    if (response.status == 200) {
+                        cardBox.style.backgroundColor = color;
+                    }
+                }
+            });
+        });
+
         // Cette partie s'assure de rajouter la carte dans la liste correspondante.
         const list = document.querySelector(`[data-list-id="${list_id}"]`);
         const cardsContainer = list.querySelector(".list-container")
