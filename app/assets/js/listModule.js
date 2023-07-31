@@ -82,6 +82,19 @@ const listModule = {
             listModule.toggleModifyForm(id);
         });
 
+        const deleteButton = newList.querySelector('.fa-trash-alt').parentNode;
+        deleteButton.addEventListener("click", async () => {
+            if (window.confirm(`Êtes-vous sûr de vouloir supprimer cette liste: ${newListTitle.textContent}.\nLa suppression de la liste est irréversible !`)) {
+                const response = await fetch(`${app.base_url}/lists/${id}`, {
+                    method: "DELETE"
+                })
+
+                if (response.status == 200) {
+                    document.querySelector(`[data-list-id="${id}"]`).remove();
+                }
+            }
+        })
+
         // Tout d'abord, je sélectionne la div dans newList qui porte l'attribue data-list-id.
         // Puis je donne une valeur à l'attribue data-list-id avec l'id de la liste (qui a été récupéré depuis l'API).
         newList.querySelector(".panel").setAttribute("data-list-id", id);
