@@ -49,6 +49,19 @@ const cardModule = {
             cardModule.toggleModifyForm(id);
         });
 
+        // Même logique que pour la modification d'une carte, on rajoute un EventListener sur l'icone Trash.
+        const deleteButton = newCard.querySelector('.fa-trash-alt').parentNode;
+        deleteButton.addEventListener('click', async () => {
+            const response = await fetch(`${app.base_url}/cards/${id}`, {
+                method: "DELETE"
+            })
+
+            if (response.status == 200) {
+                // Je récupère la carte dans le dom, et je la retire avec remove.
+                document.querySelector(`[data-card-id="${id}"]`).remove();
+            }
+        });
+
         const cardBox = newCard.querySelector(".box")
         cardBox.setAttribute("data-card-id", id);
         cardBox.style.backgroundColor = color;
