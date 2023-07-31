@@ -29,6 +29,26 @@ const cardModule = {
         const newCardTitle = newCard.getElementById("title");
         newCardTitle.textContent = name;
 
+        // .parentNode permet de récupérer l'élément parent direct (l'élément juste au dessus de <i>).
+        const modifyButton = newCard.querySelector('.fa-pencil-alt').parentNode;
+        modifyButton.addEventListener('click', () => cardModule.toggleModifyForm(id));
+
+        const newCardForm = newCard.querySelector("form");
+        newCardForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const response = await fetch(`${app.base_url}/cards/${id}`, {
+                method: "PATCH",
+                body: formData
+            });
+
+            if (response.status == 200) {
+                newCardTitle.textContent = formData.get("name");
+            }
+
+            cardModule.toggleModifyForm(id);
+        });
+
         const cardBox = newCard.querySelector(".box")
         cardBox.setAttribute("data-card-id", id);
         cardBox.style.backgroundColor = color;
@@ -55,4 +75,12 @@ const cardModule = {
         const listIdInput = document.getElementById("listIdInput");
         listIdInput.value = listId;
     },
+    toggleModifyForm: id => {
+        const card = document.querySelector(`[data-card-id="${id}"]`);
+        const title = card.querySelector("#title");
+        const form = card.querySelector("form");
+
+        title.classList.toggle("is-hidden");
+        form.classList.toggle("is-hidden");
+    }
 };
