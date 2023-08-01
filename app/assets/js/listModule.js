@@ -1,8 +1,11 @@
+const cardModule = require('./cardModule.js');
+const utils = require("./utils.js");
+
 const listModule = {
     // De son nom, on cromprend que cette fonction nous permet de récupérer les lists depuis l'API (INDIRECTEMENT depuis la BDD).
     getListsFromAPI: async () => {
         // Par défaut, fetch fait les requêtes avec la méthode GET.
-        const response = await fetch(`${app.base_url}/lists`);
+        const response = await fetch(`${utils.base_url}/lists`);
         // .json ça permet de transformer la réponse en JS, mais seulement si la réponse est en JSON.
         const lists = await response.json();
         // Grace à forEach, je vais faire un makeListInDom pour chacune des listes qui sera dans le tableau lists.
@@ -23,7 +26,7 @@ const listModule = {
         // Je peux rajouter des données moi même dans le formData (par exemple, la position qui n'est pas renseigné via le formulaire). J'utilise pour ça la méthode .set fournr par formData.
         formData.set("position", 1);
         // Je peux donner à fetch un objet en deuxième paramètre, dans cet objet j'aurais des précisions pour faire la requête (les options).
-        const response = await fetch(`${app.base_url}/lists`, {
+        const response = await fetch(`${utils.base_url}/lists`, {
             // Je peux définir la méthode utilisée par fetch en renseignant "method".
             method: "POST",
             // Ici je peux renseigner mon body.
@@ -68,7 +71,7 @@ const listModule = {
             event.preventDefault();
             const formData = new FormData(event.target);
             // Je fais une requête sur la route PATH /lists/:id, pour mettre à jour le nom de la liste sur notre BDD.
-            const response = await fetch(`${app.base_url}/lists/${id}`, {
+            const response = await fetch(`${utils.base_url}/lists/${id}`, {
                 method: "PATCH",
                 body: formData
             });
@@ -85,7 +88,7 @@ const listModule = {
         const deleteButton = newList.querySelector('.fa-trash-alt').parentNode;
         deleteButton.addEventListener("click", async () => {
             if (window.confirm(`Êtes-vous sûr de vouloir supprimer cette liste: ${newListTitle.textContent}.\nLa suppression de la liste est irréversible !`)) {
-                const response = await fetch(`${app.base_url}/lists/${id}`, {
+                const response = await fetch(`${utils.base_url}/lists/${id}`, {
                     method: "DELETE"
                 })
 
@@ -116,7 +119,7 @@ const listModule = {
         }
 
         // On ferme la modal lorsque la liste a été rajouté.
-        app.hideModals();
+        utils.hideModals();
     },
     showAddListModal: () => {
         const addListModal = document.getElementById("addListModal");
@@ -134,3 +137,5 @@ const listModule = {
         form.classList.toggle("is-hidden");
     }
 }
+
+module.exports = listModule;

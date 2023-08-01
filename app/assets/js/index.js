@@ -1,6 +1,8 @@
+const cardModule = require("./cardModule.js");
+const listModule = require("./listModule.js");
+
 const app = {
     // Je met l'url de mon serveur API (notre projet de saison 6)
-    base_url: "http://localhost:3000",
     init: () => {
         app.addListenerToActions();
         listModule.getListsFromAPI();
@@ -34,14 +36,7 @@ const app = {
         listForm.addEventListener("submit", listModule.handleAddListForm);
         addCardButtons.forEach(button => button.addEventListener("click", cardModule.showAddCardModal));
         cardForm.addEventListener("submit", cardModule.handleAddCardForm);
-    },
-    hideModals: () => {
-        const modals = document.querySelectorAll(".is-active");
-
-        modals.forEach(modal => {
-            modal.classList.remove("is-active");
-        })
-    },
+    }
 };
 
 // addEventListener nous permet de réagir (exécuter une fonction) lors d'un événement particulier (dans ce cas, DOMContentLoaded, quand le contenu a été chargé).

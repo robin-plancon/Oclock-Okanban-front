@@ -1,0 +1,15 @@
+{
+  "name": "front",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:O-clock-Yost/S07-thomas-sensei.git",
+  "author": "Thomas Tridon <ttridon.pro@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "tinyify": "^4.0.0"
+  },
+  "scripts": {
+    "build": "browserify -e app/assets/js/index.js -o ./app/assets/js/bundle.js -p tinyify"
+  }
+}

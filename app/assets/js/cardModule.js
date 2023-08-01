@@ -1,3 +1,5 @@
+const utils = require("./utils.js");
+
 const cardModule = {
     handleAddCardForm: async event => {
         event.preventDefault();
@@ -8,7 +10,7 @@ const cardModule = {
         // On rajoute la position dans les données du formulaire, car position ne peut pas être null (on l'a configuré comme ça dans la BDD).
         formData.set("position", 1);
 
-        const response = await fetch(`${app.base_url}/cards`, {
+        const response = await fetch(`${utils.base_url}/cards`, {
             method: "POST",
             body: formData
         })
@@ -37,7 +39,7 @@ const cardModule = {
         newCardForm.addEventListener("submit", async event => {
             event.preventDefault();
             const formData = new FormData(event.target);
-            const response = await fetch(`${app.base_url}/cards/${id}`, {
+            const response = await fetch(`${utils.base_url}/cards/${id}`, {
                 method: "PATCH",
                 body: formData
             });
@@ -52,7 +54,7 @@ const cardModule = {
         // Même logique que pour la modification d'une carte, on rajoute un EventListener sur l'icone Trash.
         const deleteButton = newCard.querySelector('.fa-trash-alt').parentNode;
         deleteButton.addEventListener('click', async () => {
-            const response = await fetch(`${app.base_url}/cards/${id}`, {
+            const response = await fetch(`${utils.base_url}/cards/${id}`, {
                 method: "DELETE"
             })
 
@@ -75,7 +77,7 @@ const cardModule = {
                     const formData = new FormData();
                     formData.set("color", color);
 
-                    const response = await fetch(`${app.base_url}/cards/${id}`, {
+                    const response = await fetch(`${utils.base_url}/cards/${id}`, {
                         method: "PATCH",
                         body: formData
                     })
@@ -92,7 +94,7 @@ const cardModule = {
         const cardsContainer = list.querySelector(".list-container")
         cardsContainer.prepend(newCard);
 
-        app.hideModals();
+        utils.hideModals();
     },
     showAddCardModal: event => {
         // Je récupère la modal de création de card.
@@ -118,3 +120,5 @@ const cardModule = {
         form.classList.toggle("is-hidden");
     }
 };
+
+module.exports = cardModule;
