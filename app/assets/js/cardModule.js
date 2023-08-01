@@ -148,4 +148,20 @@ const cardModule = {
     }
 };
 
+// Dans cette objet, je vais mettre tout ce qui concerne les appels à l'API.
+const cardApi = {
+    create: () => {
+
+    },
+    read: () => {
+
+    },
+    update: () => {
+
+    },
+    delete: () => {
+
+    }
+}
+
 // module.exports = cardModule;

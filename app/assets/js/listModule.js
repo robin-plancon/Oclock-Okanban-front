@@ -4,17 +4,11 @@
 const listModule = {
     // De son nom, on cromprend que cette fonction nous permet de récupérer les lists depuis l'API (INDIRECTEMENT depuis la BDD).
     getListsFromAPI: async () => {
-        // Par défaut, fetch fait les requêtes avec la méthode GET.
-        const response = await fetch(`${utils.base_url}/lists`);
-        // .json ça permet de transformer la réponse en JS, mais seulement si la réponse est en JSON.
-        const lists = await response.json();
+        const lists = await listApi.read();
         // Grace à forEach, je vais faire un makeListInDom pour chacune des listes qui sera dans le tableau lists.
-        // lists.forEach(list => {
-        //     listModule.makeListInDOM(list);
-        // });
-        for (index = lists.length - 1; index >= 0; index--) {
-            listModule.makeListInDOM(lists[index])
-        }
+        lists.forEach(list => {
+            listModule.makeListInDOM(list);
+        });
     },
     handleAddListForm: async event => {
         // event nous provient du form lors de sa soumission (submit). Par défaut, un formulaire lorsqu'il est soumis va faire une requête avec les datas et recharger la page. Puisqu'on est dans le cadre d'une SPA, on ne veut pas recharger la page, on veut le gérer nous même.
@@ -31,33 +25,7 @@ const listModule = {
         const position = lists.length + 1;
         // Je peux rajouter des données moi même dans le formData (par exemple, la position qui n'est pas renseigné via le formulaire). J'utilise pour ça la méthode .set fournr par formData.
         formData.set("position", position);
-        // Je peux donner à fetch un objet en deuxième paramètre, dans cet objet j'aurais des précisions pour faire la requête (les options).
-        const response = await fetch(`${utils.base_url}/lists`, {
-            // Je peux définir la méthode utilisée par fetch en renseignant "method".
-            method: "POST",
-            // Ici je peux renseigner mon body.
-            // Méthode 1:
-            // Si je renseigne mon body en transformant mes datas en JSON, je devrais prévenir le serveur.
-            // body: JSON.stringify({
-            //     name: title,
-            //     position: 1
-            // }),
-            // // Ici, je préviens que les données que j'envoie dans ma requête sont au format JSON, si je ne le préviens pas, il n'utilisera pas express.json() (côté serveur) pour formatter puis utiliser les données que j'envoie.
-            // headers: {
-            //     'Content-Type': 'application/json'
-            // }
-            // Méthode 2:
-            body: formData,
-        });
-
-        // Ici je vérifie le status de la réponse à la requête (200 == tout va bien).
-        if (response.status !== 200) {
-            alert("Erreur du serveur");
-            return;
-        }
-
-        const newList = await response.json();
-
+        const newList = await listApi.create(formData);
         listModule.makeListInDOM(newList);
     },
     // Directement, je destructure l'objet reçu en paramètre.
@@ -76,14 +44,10 @@ const listModule = {
         newListForm.addEventListener("submit", async event => {
             event.preventDefault();
             const formData = new FormData(event.target);
-            // Je fais une requête sur la route PATH /lists/:id, pour mettre à jour le nom de la liste sur notre BDD.
-            const response = await fetch(`${utils.base_url}/lists/${id}`, {
-                method: "PATCH",
-                body: formData
-            });
+            const updatedList = await listApi.update(formData, id);
 
             // Si la BDD a correctement modifié le nom, alors je le change aussi du côté du front (sur le DOM).
-            if (response.status == 200) {
+            if (updatedList) {
                 newListTitle.textContent = formData.get('name');
             };
 
@@ -94,11 +58,9 @@ const listModule = {
         const deleteButton = newList.querySelector('.fa-trash-alt').parentNode;
         deleteButton.addEventListener("click", async () => {
             if (window.confirm(`Êtes-vous sûr de vouloir supprimer cette liste: ${newListTitle.textContent}.\nLa suppression de la liste est irréversible !`)) {
-                const response = await fetch(`${utils.base_url}/lists/${id}`, {
-                    method: "DELETE"
-                })
+                const response = await listApi.delete(id);
 
-                if (response.status == 200) {
+                if (response.ok) {
                     document.querySelector(`[data-list-id="${id}"]`).remove();
                 }
             }
@@ -148,10 +110,7 @@ const listModule = {
                     formData.set("position", position);
 
                     // Je fais une requête pour mettre à jour la position de ma liste.
-                    await fetch(`${utils.base_url}/lists/${listId}`, {
-                        method: "PATCH",
-                        body: formData
-                    });
+                    await listApi.update(formData, listId);
 
                     position = position - 1;
                 }
@@ -172,6 +131,58 @@ const listModule = {
         title.classList.toggle("is-hidden");
         // Si la classe n'est pas présente, je l'ajoute.
         form.classList.toggle("is-hidden");
+    }
+}
+
+// Dans cette objet, je vais mettre tout ce qui concerne les appels à l'API.
+const listApi = {
+    create: async formData => {
+        // Je peux donner à fetch un objet en deuxième paramètre, dans cet objet j'aurais des précisions pour faire la requête (les options).
+        const response = await fetch(`${utils.base_url}/lists`, {
+            // Je peux définir la méthode utilisée par fetch en renseignant "method".
+            method: "POST",
+            // Ici je peux renseigner mon body.
+            // Méthode 1:
+            // Si je renseigne mon body en transformant mes datas en JSON, je devrais prévenir le serveur.
+            // body: JSON.stringify({
+            //     name: title,
+            //     position: 1
+            // }),
+            // // Ici, je préviens que les données que j'envoie dans ma requête sont au format JSON, si je ne le préviens pas, il n'utilisera pas express.json() (côté serveur) pour formatter puis utiliser les données que j'envoie.
+            // headers: {
+            //     'Content-Type': 'application/json'
+            // }
+            // Méthode 2:
+            body: formData,
+        });
+
+        // Ici je vérifie le status de la réponse à la requête (200 == tout va bien).
+        if (response.status !== 200) {
+            alert("Erreur du serveur");
+
+            return null;
+        }
+
+        return response.json();
+    },
+    read: async () => {
+        // Par défaut, fetch fait les requêtes avec la méthode GET.
+        const response = await fetch(`${utils.base_url}/lists`);
+        // .json ça permet de transformer la réponse en JS, mais seulement si la réponse est en JSON.
+        return response.json();
+    },
+    update: async (formData, id) => {
+        const response = await fetch(`${utils.base_url}/lists/${id}`, {
+            method: "PATCH",
+            body: formData
+        });
+        return response.json();
+    },
+    delete: async id => {
+        const response = await fetch(`${utils.base_url}/lists/${id}`, {
+            method: "DELETE"
+        });
+        return response;
     }
 }
 
