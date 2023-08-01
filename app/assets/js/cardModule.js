@@ -1,4 +1,4 @@
-const utils = require("./utils.js");
+// const utils = require("./utils.js");
 
 const cardModule = {
     handleAddCardForm: async event => {
@@ -6,9 +6,12 @@ const cardModule = {
 
         const formData = new FormData(event.target);
         // const title = formData.get("name");
-        // const listId = formData.get("list_id");
+        const listId = formData.get("list_id");
         // On rajoute la position dans les données du formulaire, car position ne peut pas être null (on l'a configuré comme ça dans la BDD).
-        formData.set("position", 1);
+        const list = document.querySelector(`[data-list-id="${listId}"]`);
+        const cards = list.querySelectorAll("[data-card-id]");
+        const position = cards.length + 1;
+        formData.set("position", position);
 
         const response = await fetch(`${utils.base_url}/cards`, {
             method: "POST",
@@ -92,9 +95,33 @@ const cardModule = {
         // Cette partie s'assure de rajouter la carte dans la liste correspondante.
         const list = document.querySelector(`[data-list-id="${list_id}"]`);
         const cardsContainer = list.querySelector(".list-container")
-        cardsContainer.prepend(newCard);
+        cardsContainer.appendChild(newCard);
 
         utils.hideModals();
+    },
+    setDragDrop: (listId) => {
+        const list = document.querySelector(`[data-list-id="${listId}"]`);
+        const cardsContainer = list.querySelector(".list-container")
+
+        Sortable.create(cardsContainer, {
+            onEnd: async event => {
+                const cards = event.to.children;
+                let position = 0;
+
+                for (index = 0; index < cards.length; index++) {
+                    const cardId = cards[index].dataset.cardId;
+                    const formData = new FormData();
+                    formData.set("position", position);
+
+                    await fetch(`${utils.base_url}/cards/${cardId}`, {
+                        method: "PATCH",
+                        body: formData
+                    })
+
+                    position = position + 1;
+                }
+            }
+        });
     },
     showAddCardModal: event => {
         // Je récupère la modal de création de card.
@@ -121,4 +148,4 @@ const cardModule = {
     }
 };
 
-module.exports = cardModule;
+// module.exports = cardModule;
