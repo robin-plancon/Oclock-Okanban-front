@@ -1,5 +1,5 @@
-const cardModule = require('./cardModule.js');
-const utils = require("./utils.js");
+// const cardModule = require('./cardModule.js');
+// const utils = require("./utils.js");
 
 const listModule = {
     // De son nom, on cromprend que cette fonction nous permet de récupérer les lists depuis l'API (INDIRECTEMENT depuis la BDD).
@@ -9,9 +9,12 @@ const listModule = {
         // .json ça permet de transformer la réponse en JS, mais seulement si la réponse est en JSON.
         const lists = await response.json();
         // Grace à forEach, je vais faire un makeListInDom pour chacune des listes qui sera dans le tableau lists.
-        lists.forEach(list => {
-            listModule.makeListInDOM(list);
-        });
+        // lists.forEach(list => {
+        //     listModule.makeListInDOM(list);
+        // });
+        for (index = lists.length - 1; index >= 0; index--) {
+            listModule.makeListInDOM(lists[index])
+        }
     },
     handleAddListForm: async event => {
         // event nous provient du form lors de sa soumission (submit). Par défaut, un formulaire lorsqu'il est soumis va faire une requête avec les datas et recharger la page. Puisqu'on est dans le cadre d'une SPA, on ne veut pas recharger la page, on veut le gérer nous même.
@@ -23,8 +26,11 @@ const listModule = {
         const formData = new FormData(event.target);
         // Pour accéder aux datas via le format "FormData", j'utilise la méthode .get fourni par l'objet formData.
         // const title = formData.get("name");
+        // Pour trouver quelle position je vais donner à ma liste, je vais chercher la position la plus grande parmis les listes déjà créer, et lui rajouer 1.
+        const lists = document.querySelectorAll("[data-list-id]");
+        const position = lists.length + 1;
         // Je peux rajouter des données moi même dans le formData (par exemple, la position qui n'est pas renseigné via le formulaire). J'utilise pour ça la méthode .set fournr par formData.
-        formData.set("position", 1);
+        formData.set("position", position);
         // Je peux donner à fetch un objet en deuxième paramètre, dans cet objet j'aurais des précisions pour faire la requête (les options).
         const response = await fetch(`${utils.base_url}/lists`, {
             // Je peux définir la méthode utilisée par fetch en renseignant "method".
@@ -118,8 +124,39 @@ const listModule = {
             })
         }
 
+        cardModule.setDragDrop(id);
+
         // On ferme la modal lorsque la liste a été rajouté.
         utils.hideModals();
+    },
+    setDragDrop: () => {
+        const listsContainer = document.querySelector(".card-lists");
+        // Sortable va rendre tous les enfants du composant que tu lui donnes en paramètre Drag And Dropable.
+        Sortable.create(listsContainer, {
+            onEnd: async event => {
+                // event.to.children correspond au tableau de notre nouvelle organisation de liste.
+                const lists = event.to.children;
+                let position = lists.length;
+
+                // Cette boucle, va permettre de donner les nouvelles positions à toutes les listes.
+                for (index = 0; index < lists.length; index++) {
+                    // .dataset me permet de récupérer la valeur d'une propriété/attribue (property en anglais) qui commence par "data-". Dans mon cas, je récupère la valeur qui est dans "data-list-id" (attention, écrit en kamelCase).
+                    const listId = lists[index].dataset.listId;
+                    // On crée un formData vide, pour pouvoir l'envoyer dans notre requête.
+                    const formData = new FormData();
+                    // On rajoute une propriété position dans le formData.
+                    formData.set("position", position);
+
+                    // Je fais une requête pour mettre à jour la position de ma liste.
+                    await fetch(`${utils.base_url}/lists/${listId}`, {
+                        method: "PATCH",
+                        body: formData
+                    });
+
+                    position = position - 1;
+                }
+            }
+        });
     },
     showAddListModal: () => {
         const addListModal = document.getElementById("addListModal");
@@ -138,4 +175,4 @@ const listModule = {
     }
 }
 
-module.exports = listModule;
+// module.exports = listModule;

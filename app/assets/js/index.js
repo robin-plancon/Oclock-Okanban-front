@@ -1,11 +1,12 @@
-const cardModule = require("./cardModule.js");
-const listModule = require("./listModule.js");
+// const cardModule = require("./cardModule.js");
+// const listModule = require("./listModule.js");
 
 const app = {
     // Je met l'url de mon serveur API (notre projet de saison 6)
     init: () => {
         app.addListenerToActions();
         listModule.getListsFromAPI();
+        listModule.setDragDrop();
     },
     addListenerToActions: () => {
         const addListButton = document.getElementById("addListButton");
@@ -32,7 +33,7 @@ const app = {
         //     button.addEventListener("click", app.hideModals);
         // };
         // Méthode si on utilise querySelectorAll.
-        hideModalButtons.forEach(button => button.addEventListener("click", app.hideModals));
+        hideModalButtons.forEach(button => button.addEventListener("click", utils.hideModals));
         listForm.addEventListener("submit", listModule.handleAddListForm);
         addCardButtons.forEach(button => button.addEventListener("click", cardModule.showAddCardModal));
         cardForm.addEventListener("submit", cardModule.handleAddCardForm);
