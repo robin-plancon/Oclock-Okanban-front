@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Révisions</title>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <!-- Ce code ne sera pas affiché dans mon navigateur. Il sera utilisé côté JS pour créer de nouveaux éléments préconfigurés. On lui donne un id pour être capable de selectionner le template depuis notre code JS. -->
+    <template id="fruit-template">
+        <li>
+            <h3 class="title"></h3>
+            <p class="price"></p>
+            <p class="quantity"></p>
+        </li>
+    </template>
+
+    <!-- On met le script à la fin de notre page HTML, pour que le contenu soit chargé avant le chargement du fichier index.js
+    Si on mettait le chargement du fichier index.js avant celui du chargement du HTML, alors l'utilisateur ne verrait qu'une page blanche jusqu'au chargement total du index.js -->
+    <script src="./index.js"></script>
+</body>
+
+</html>
